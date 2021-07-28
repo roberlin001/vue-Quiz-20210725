@@ -34,7 +34,7 @@
   <div id="app">
 
     <p>
-      站點名稱搜尋: <input type="text">
+      站點名稱搜尋: <input v-model="keyword" type="text">
     </p>
 
     <table class="table table-striped">
@@ -44,18 +44,25 @@
           <th>場站名稱</th>
           <th>場站區域</th>
           <th>目前可用車輛
-            <i class="fa fa-sort-asc" aria-hidden="true"></i>
-            <i class="fa fa-sort-desc" aria-hidden="true"></i>
+            <i class="fa fa-sort-asc" @click="toggleCurrent(0)" aria-hidden="true"></i>
+            <i class="fa fa-sort-desc" @click="toggleCurrent(1)" aria-hidden="true"></i>
           </th>
           <th>總停車格
-            <i class="fa fa-sort-asc" aria-hidden="true"></i>
-            <i class="fa fa-sort-desc" aria-hidden="true"></i>
+            <i class="fa fa-sort-asc" @click="toggleTotal(0)" aria-hidden="true"></i>
+            <i class="fa fa-sort-desc" @click="toggleTotal(1)" aria-hidden="true"></i>
           </th>
           <th>資料更新時間</th>
         </tr>
       </thead>
       <tbody>
-        <!-- 請補完 -->
+        <tr v-for="(s,index) in sortKeyWord">
+          <td>{{ s.sno }}</td>
+          <td>{{ s.sna }}</td>
+          <td>{{ s.sarea }}</td>
+          <td>{{ s.sbi }}</td>
+          <td>{{ s.tot }}</td>
+          <td>{{ s.mday }}</td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -75,7 +82,33 @@
     const app = Vue.createApp({
       data () {
         return {
-          uBikeStops: []
+          uBikeStops: [],
+          keyword:""
+        }
+      },
+      methods: {
+        toggleCurrent (val){
+          if(val === 0){
+            return this.uBikeStops.sort((a,b)=>a.sbi - b.sbi);
+          }else{
+            return this.uBikeStops.sort((a,b)=>b.sbi - a.sbi);
+          }
+        },
+        toggleTotal (val){
+          if(val === 0){
+            return this.uBikeStops.sort((a,b)=>a.tot - b.tot);
+          }else{
+            return this.uBikeStops.sort((a,b)=>b.tot - a.tot);
+          }
+        }
+      },
+      computed:{
+        sortKeyWord () {
+          if(this.keyword === ''){
+            return this.uBikeStops;
+          }else{
+            return this.uBikeStops.filter((item)=>item.sna.indexOf(this.keyword) > -1)
+          }
         }
       },
       created () {
@@ -84,11 +117,11 @@
             .then(json => {
               const stops = Object.keys(json.retVal).map(key => json.retVal[key]);
               this.uBikeStops = stops;
+              console.log(this.uBikeStops)
             });
       }
     }).mount('#app');
   </script>
-
 </body>
 
 </html>
